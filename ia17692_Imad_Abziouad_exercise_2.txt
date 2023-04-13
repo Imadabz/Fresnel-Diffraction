@@ -1,0 +1,310 @@
+
+
+
+import numpy as np
+import pylab as pylab
+import matplotlib.pyplot as plt
+import scipy as sc
+
+print ("hello! Welcome to the Fresnel diffraction grapher.")
+
+MyInput = '0'
+while MyInput != 'q':
+    print("Whatever you do, DON'T CHOOSE e!")
+    print ("Please enter a choice")
+    print ("'a' for 1D test, 'b' for 1D with custom values,")
+    print ("'c' for 2D square,'d' for a custom quadilateral,")
+    print ("or 'q' to quit:")
+   
+
+    MyInput = input()
+    
+
+# Part a, Simposon's composite rule 1D integration
+
+    if MyInput == 'a':
+        print('You have chosen part a, a fine choice!')
+        
+        
+
+
+        def f( x_pri): # one dimensional Fresnel equation
+                return np.exp((i*k / 2*z) * ((x-x_pri)**2))
+    
+        def Simp1D(f, a, b, n):
+            
+            
+            if N % 2 == 0: # making sure N value provided is even
+                n = N  
+            elif N % 2 != 0:
+                n = (N - 1)
+            h = (b - a)/n # h constant, or step size
+            
+            odd = 0 # initialising odd loop
+            p = 0
+            u = 0
+            for u in range(1,n,2): # loop for odd values of n
+                p = a + u*h
+                odd += f(p)
+                
+            q = 0 # initialising even loop
+            even = 0
+            u = 0
+            for u in range(0,n+1,2): # loop for even values of n
+                q = a + u*h
+                even += f(q)
+
+            e = (2*even + 4*odd + f(a) + f(b)) # composite Simpson coefficients
+            area = ((h/3)*e)
+            c = (k/(2*np.pi*z)) * area
+            E = c*np.conj(c) # Squaring Fresnel for plotting
+            return abs(E)
+                
+        
+        z = float(0.02)
+        L = float(0.000001)
+        a = float(-0.00001)
+        b = float(0.00001)
+        N = int(100)
+        k = (2*(np.pi/L))
+        i = (0 + 1j)
+        
+        if a > b:   # making sure limits a & b are in correct order
+            print ("Boundaries are incorrect. b must be than a")
+            continue
+        
+        if N == 0:  # ensuring N isn't zero
+            print ("N cannot be zero")
+            continue
+        
+        # plotting of the one dimensional graph
+        x = np.linspace(-10,10,200)
+        y = Simp1D(f, a, b, n)
+        plt.xlabel('Position (mm)')
+        plt.ylabel('Relative Intensity')
+        plt.plot(x,y)
+        plt.show()
+        
+# Part b, Simposon's composite rule 1D integration with own values
+    elif MyInput == 'b':
+        print('You have chosen part b, fascinating!')
+        print('Please stick to SI units')
+        
+        def f(x_pri): # one dimensional Fresnel equation
+                return np.exp((i*k / 2*z) * ((x-x_pri)**2))
+    
+        def Simp1D(f, a, b, n):
+            
+            
+            if N % 2 == 0: # making sure N value provided is even
+                n = N  
+            elif N % 2 != 0:
+                n = (N - 1)
+            h = (b - a)/n # h constant, or step size
+            
+            odd = 0 # initialising odd loop
+            p = 0
+            u = 0
+            for u in range(1,n,2): # loop for odd values of n
+                p = a + u*h
+                odd += f(p)
+                
+            q = 0 # initialising even loop
+            even = 0
+            u = 0
+            for u in range(0,n+1,2): # loop for even values of n
+                q = a + u*h
+                even += f(q)
+
+            e = (2*even + 4*odd + f(a) + f(b)) # composite Simpson coefficients
+            area = ((h/3)*e)
+            c = (k/(2*np.pi*z)) * area
+            E = c*np.conj(c) # Squaring Fresnel for plotting
+            return abs(E)
+                
+        # entering customised values
+        Input_N = input('Enter number of steps: ')
+        N = int(Input_N)
+        Input_z = input('Enter distance to screen: ')
+        z = float(Input_z)
+        Input_L = input('Enter wavelength of light: ')
+        L = float(Input_L)
+        Input_a = input('Enter lower screen coordinate: ')
+        a = float(Input_a)
+        Input_b = input('Enter upper screen coordinate: ')
+        b = float(Input_b)
+        k = (2*(np.pi/L))
+        i = (0 + 1j)
+        
+        if a > b:   # making sure limits a & b are in correct order
+            print ("Boundaries are incorrect. b must be than a")
+            continue
+        
+        if N == 0:  # ensuring N isn't zero
+            print ("N cannot be zero")
+            continue
+        
+        # plotting of the one dimensional graph
+        x = np.linspace(-10,10,200)
+        y = Simp1D(f, a, b, n)
+        plt.plot(x,y)
+        plt.xlabel('Position (mm)')
+        plt.ylabel('Relative Intensity')
+        plt.savefig('myfig.png', dpi=1200)
+        plt.show()
+
+        continue
+# Part c, inbuilt Simposon's integration for square 
+    elif MyInput == 'c':
+        print('You have chosen part c, excellent! ')
+        
+        # defining constants
+        z = float(0.002)
+        L = float(0.000001)
+        N = int(100)
+        a = float(-0.00001)
+        b = float(0.00001)
+        k = (2*(np.pi/L))
+        i = (0 + 1j)
+        if N % 2 == 0: # making sure N value provided is even
+                n = N  
+        elif N % 2 != 0:
+                n = (N - 1)
+                
+        if N == 0:  # ensuring N isn't zero
+            print ("N cannot be zero")
+            continue
+        if a > b:   # making sure limits a & b are in correct order
+            print ("Boundaries are incorrect. b must be than a")
+            continue
+        # creating arrays to be plugged into fresnel equations below
+        x = np.linspace(-500,500,n)
+        y = np.linspace(-500,500,n)
+        y_pri = np.linspace(a,b,n)
+        x_pri = np.linspace(a,b,n)
+
+        
+        def f(x_pri): # x co-ordinate Fresnel equation
+                eq1 = (h/3)*(k/(2*np.pi*z))*np.exp((i*k / 2*z) * ((x-x_pri)**2))
+                return abs(np.conj(eq1))
+    
+        def g(y_pri): # y co-ordinate Fresnel equation
+                eq2 = (h/3)*(k/(2*np.pi*z))*np.exp((i*k / 2*z) * ((y-y_pri)**2))
+                return abs(np.conj(eq2))
+        
+        from scipy import integrate
+        
+        p = integrate.simps(g(y_pri),y)
+        q = integrate.simps(f(x_pri),x)
+        # plotting the interated arrays
+        h = (b - a)/n # step size
+        intensity = np.zeros( (100,100))
+        for p in range(n):
+            x2 = p * h
+            for q in range(n):
+                y2 = q * h
+                intensity[p,q] = x2 * y2
+        
+        plt.imshow(intensity)
+        
+        plt.show()
+        
+        
+       
+        continue
+# Part d, inbuilt Simposon's integration for a custom quadilateral 2D
+
+    elif MyInput == 'd':
+        print('You have chosen part d, very interesting...')
+        print('Please stick to SI units')
+        
+        # entering customised values
+        Input_N = input('Enter number of steps: ')
+        N = int(Input_N)
+        Input_z = input('Enter distance to screen: ')
+        z = float(Input_z)
+        Input_L = input('Enter wavelength of light: ')
+        L = float(Input_L)
+        Input_a = input('Enter lower x axis screen coordinate: ')
+        a = float(Input_a)
+        Input_b = input('Enter upper x axis screen coordinate : ')
+        b = float(Input_b)
+        Input_a = input('Enter lower y axis screen coordinate: ')
+        a2 = float(Input_a)
+        Input_b = input('Enter upper y axis screen coordinate : ')
+        b2 = float(Input_b)
+
+        k = (2*(np.pi/L))
+        i = (0 + 1j)
+        if N % 2 == 0: # making sure N value provided is even
+                n = N  
+        elif N % 2 != 0:
+                n = (N - 1)
+                
+        if N == 0:  # ensuring N isn't zero
+            print ("N cannot be zero")
+            continue
+        if a > b:   # making sure limits a & b are in correct order
+            print ("Boundaries are incorrect. b must be than a")
+            continue
+        # creating arrays to be plugged into fresnel equations below
+        x = np.linspace(-500,500,n)
+        y = np.linspace(-500,500,n)
+        y_pri = np.linspace(a2,b2,n)
+        x_pri = np.linspace(a,b,n)
+
+        
+        def f(x_pri): # x co-ordinate Fresnel equation
+                eq1 = (h/3)*(k/(2*np.pi*z))*np.exp((i*k / 2*z) * ((x-x_pri)**2))
+                return abs(np.conj(eq1))
+    
+        def g(y_pri): # y co-ordinate Fresnel equation
+                eq2 = (h/3)*(k/(2*np.pi*z))*np.exp((i*k / 2*z) * ((y-y_pri)**2))
+                return abs(np.conj(eq2))
+        
+        from scipy import integrate
+        
+        p = integrate.simps(g(y_pri),y)
+        q = integrate.simps(f(x_pri),x)
+        # plotting the interated arrays
+        h = (b - a)/n # step size
+        intensity = np.zeros( (100,100))
+        for p in range(n):
+            x2 = p * h
+            for q in range(n):
+                y2 = q * h
+                intensity[p,q] = x2 * y2
+        
+        plt.imshow(intensity)
+        plt.savefig('my2dfig.png', dpi=1200)
+        plt.show()
+
+        continue
+        
+    elif MyInput == 'e':
+        print('   ')
+        print('Who approaches the code of death')
+        print('must answer me these questions three!')
+        print('Ere the other side they see!')
+        name  = input('What is your name? ')
+        quest = input('What is your quest? ')
+        speed = input('What is the air-speed velocity of an unladen swallow?' )
+        
+        if speed == 'What do you mean? An African or European swallow?':
+            print('   ')
+            print ("Er ... I don't know that ... Aaaaarrrrrrggghhh!")
+        elif speed !='What do you mean? An African or European swallow?':
+            print('   ')
+            print ("False!")
+            print('   ')
+
+        continue
+
+    
+    
+    
+    elif MyInput != 'q':
+        print('This is not a valid choice')
+        continue
+
+print('You have chosen to finish - good day!')
